@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星艺造型 - 老板智能助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a1a2e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --bg: #0f0f1a;
+            --card: #16213e;
+            --text: #eaeaea;
+            --text-dim: #8892b0;
+            --border: rgba(233, 69, 96, 0.2);
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--card));
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 18px;
+            background: linear-gradient(135deg, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-bar { display: flex; gap: 20px; font-size: 13px; color: var(--text-dim); }
+        .status-item { display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.online { background: var(--success); animation: pulse 2s infinite; }
+        .status-dot.offline { background: var(--text-dim); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .container { display: flex; height: calc(100vh - 65px); }
+        
+        /* 左侧数字员工列表 */
+        .sidebar {
+            width: 260px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 16px;
+            font-size: 13px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .employee-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .employee-item {
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+        .employee-item:hover { background: rgba(255,255,255,0.05); }
+        .employee-item.active { background: rgba(233, 69, 96, 0.2); border-color: var(--accent); }
+        .employee-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .employee-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .employee-role { font-size: 12px; color: var(--text-dim); }
+        .employee-status {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; margin-top: 8px;
+        }
+        .employee-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+        }
+        .employee-badge.scheduled {
+            background: rgba(96, 165, 250, 0.15);
+            color: var(--info);
+        }
+
+        /* 右侧对话区域 */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-title { font-weight: 600; }
+        .chat-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+        .quick-actions { display: flex; gap: 8px; }
+        .quick-btn {
+            padding: 6px 12px;
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            color: var(--accent-light);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-btn:hover { background: var(--accent); color: #fff; }
+
+        .messages { flex: 1; overflow-y: auto; padding: 20px; }
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { flex-direction: row-reverse; }
+        .message-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .message.ai .message-avatar { background: linear-gradient(135deg, var(--accent), var(--accent-light)); }
+        .message.user .message-avatar { background: var(--card); }
+        .message-content {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .message.ai .message-content { background: var(--card); border-bottom-left-radius: 4px; }
+        .message.user .message-content { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; border-bottom-right-radius: 4px; }
+        .message-content ul { margin: 8px 0; padding-left: 20px; }
+        .message-content li { margin: 6px 0; }
+        .message-content strong { color: var(--accent-light); }
+        .message-content table { width: 100%; margin: 12px 0; border-collapse: collapse; font-size: 13px; }
+        .message-content th, .message-content td { padding: 8px 12px; border: 1px solid var(--border); text-align: left; }
+        .message-content th { background: rgba(255,255,255,0.05); }
+
+        .typing-indicator {
+            display: flex; align-items: center; gap: 4px; padding: 14px 18px;
+            background: var(--card); border-radius: 16px; width: fit-content;
+        }
+        .typing-indicator span {
+            width: 8px; height: 8px; background: var(--text-dim);
+            border-radius: 50%; animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            background: var(--card);
+        }
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 18px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+        }
+        .input-wrapper input:focus { border-color: var(--accent); }
+        .send-btn {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none; border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .send-btn:hover { transform: scale(1.05); }
+        .send-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+        /* 定时任务面板 */
+        .tasks-panel {
+            position: fixed;
+            right: -400px;
+            top: 65px;
+            width: 400px;
+            height: calc(100vh - 65px);
+            background: var(--card);
+            border-left: 1px solid var(--border);
+            transition: right 0.3s ease;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+        }
+        .tasks-panel.open { right: 0; }
+        .tasks-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tasks-header h3 { font-size: 16px; }
+        .close-btn {
+            width: 32px; height: 32px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .close-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .tasks-body { flex: 1; overflow-y: auto; padding: 16px; }
+        .task-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .task-item-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .task-name { font-weight: 600; font-size: 14px; }
+        .task-toggle {
+            width: 44px; height: 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .task-toggle.active { background: var(--success); }
+        .task-toggle::after {
+            content: '';
+            width: 20px; height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: left 0.2s;
+        }
+        .task-toggle.active::after { left: 22px; }
+        .task-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+        .task-schedule {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: var(--text-dim);
+        }
+        .task-schedule select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: var(--text);
+            font-size: 12px;
+        }
+        .task-log {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .task-log-title { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+        .task-log-item {
+            font-size: 12px;
+            color: var(--text-dim);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .task-log-item:last-child { border-bottom: none; }
+        .task-log-time { color: var(--success); margin-right: 8px; }
+
+        /* 任务按钮 */
+        .tasks-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none;
+            border-radius: 24px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3);
+            transition: transform 0.2s;
+            z-index: 40;
+        }
+        .tasks-btn:hover { transform: translateY(-2px); }
+
+        /* 欢迎消息 */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--card), rgba(233, 69, 96, 0.1));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            max-width: 500px;
+            margin: 40px auto;
+        }
+        .welcome-card h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .welcome-card p { color: var(--text-dim); margin-bottom: 24px; }
+        .welcome-employees {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .welcome-employee {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            width: 120px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .welcome-employee:hover { background: rgba(233, 69, 96, 0.2); transform: translateY(-2px); }
+        .welcome-employee-icon { font-size: 32px; margin-bottom: 8px; }
+        .welcome-employee-name { font-size: 13px; font-weight: 600; }
+        .welcome-employee-role { font-size: 11px; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>星艺造型 · 智能助手</h1>
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span id="currentTime">14:25</span>
+            </div>
+            <div class="status-item">
+                <span>今日预约</span>
+                <strong id="todayCount">0</strong>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">数字员工</div>
+            <div class="employee-list">
+                <div class="employee-item active" onclick="selectEmployee('operator')">
+                    <div class="employee-avatar" style="background: linear-gradient(135deg, #9333ea, #c084fc);">🤖</div>
+                    <div class="employee-name">运营管家</div>
+                    <div class="employee-role">预约管理 · 数据分析</div>
+                    <div class="employee-status">
+                        <span class="employee-badge">在线</span>
+                    </div>
+                </div>
+                <div class="employee-item" onclick="selectEmployee('researcher')">
+                    <div class="employee-avatar" style="background: linear-gradient(135deg, #0891b2, #22d3ee);">🔍</div>
+                    <div class="employee-name">市场调研员</div>
+                    <div class="employee-role">流行趋势 · 竞品分析</div>
+                    <div class="employee-status">
+                        <span class="employee-badge scheduled">定时推送</span>
+                    </div>
+                </div>
+                <div class="employee-item" onclick="selectEmployee('marketer')">
+                    <div class="employee-avatar" style="background: linear-gradient(135deg, #ea580c, #fb923c);">📢</div>
+                    <div class="employee-name">营销顾问</div>
+                    <div class="employee-role">活动策划 · 回访提醒</div>
+                    <div class="employee-status">
+                        <span class="employee-badge">待激活</span>
+                    </div>
+                </div>
+                <div class="employee-item" onclick="selectEmployee('advisor')">
+                    <div class="employee-avatar" style="background: linear-gradient(135deg, #16a34a, #4ade80);">💇</div>
+                    <div class="employee-name">客户顾问</div>
+                    <div class="employee-role">客户咨询 · 预约服务</div>
+                    <div class="employee-status">
+                        <span class="employee-badge">在线</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <div class="chat-header">
+                <div>
+                    <div class="chat-title" id="chatTitle">运营管家</div>
+                    <div class="chat-subtitle" id="chatSubtitle">预约管理 · 数据分析 · 运营建议</div>
+                </div>
+                <div class="quick-actions" id="quickActions">
+                    <button class="quick-btn" onclick="askQuestion('今天有哪些预约')">今日预约</button>
+                    <button class="quick-btn" onclick="askQuestion('这周收入多少')">本周收入</button>
+                    <button class="quick-btn" onclick="askQuestion('哪些客户要回访')">待回访</button>
+                </div>
+            </div>
+
+            <div class="messages" id="messages">
+                <div class="welcome-card">
+                    <h2>👋 欢迎回来，老板</h2>
+                    <p>我是您的智能助手团队，随时为您提供经营决策支持</p>
+                    <div class="welcome-employees">
+                        <div class="welcome-employee" onclick="selectEmployee('operator')">
+                            <div class="welcome-employee-icon">🤖</div>
+                            <div class="welcome-employee-name">运营管家</div>
+                            <div class="welcome-employee-role">数据分析</div>
+                        </div>
+                        <div class="welcome-employee" onclick="selectEmployee('researcher')">
+                            <div class="welcome-employee-icon">🔍</div>
+                            <div class="welcome-employee-name">市场调研员</div>
+                            <div class="welcome-employee-role">流行趋势</div>
+                        </div>
+                        <div class="welcome-employee" onclick="selectEmployee('marketer')">
+                            <div class="welcome-employee-icon">📢</div>
+                            <div class="welcome-employee-name">营销顾问</div>
+                            <div class="welcome-employee-role">活动策划</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="输入您的问题..." onkeypress="if(event.key==='Enter')sendMessage()">
+                </div>
+                <button class="send-btn" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 定时任务按钮 -->
+    <button class="tasks-btn" onclick="toggleTasksPanel()">
+        <span>📋</span>
+        <span>定时任务</span>
+    </button>
+
+    <!-- 定时任务面板 -->
+    <div class="tasks-panel" id="tasksPanel">
+        <div class="tasks-header">
+            <h3>定时任务设置</h3>
+            <button class="close-btn" onclick="toggleTasksPanel()">×</button>
+        </div>
+        <div class="tasks-body">
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">📰 市场日报推送</div>
+                    <div class="task-toggle active" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">每天早上9点推送当日流行发型、发色趋势报告</div>
+                <div class="task-schedule">
+                    <span>推送时间：</span>
+                    <select><option>08:00</option><option selected>09:00</option><option>10:00</option></select>
+                    <span>每天</span>
+                </div>
+                <div class="task-log">
+                    <div class="task-log-title">最近执行</div>
+                    <div class="task-log-item"><span class="task-log-time">今天 09:00</span>已发送至对话</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">📅 预约晨报</div>
+                    <div class="task-toggle active" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">每天早上9点30分推送今日预约清单和待办事项</div>
+                <div class="task-schedule">
+                    <span>推送时间：</span>
+                    <select><option selected>09:30</option><option>10:00</option></select>
+                    <span>每天</span>
+                </div>
+                <div class="task-log">
+                    <div class="task-log-title">最近执行</div>
+                    <div class="task-log-item"><span class="task-log-time">今天 09:30</span>今日预约 3 人</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">💌 客户回访提醒</div>
+                    <div class="task-toggle" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">自动追踪烫染客户，在服务后3天/7天提醒回访</div>
+                <div class="task-schedule">
+                    <span>触发条件：</span>
+                    <select><option>服务后3天</option><option selected>服务后3/7天</option><option>服务后7天</option></select>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">🎉 节假日营销建议</div>
+                    <div class="task-toggle" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">节假日前7天自动生成营销活动方案和建议</div>
+                <div class="task-schedule">
+                    <span>提前提醒：</span>
+                    <select><option>3天</option><option selected>7天</option><option>14天</option></select>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">📊 周报汇总</div>
+                    <div class="task-toggle active" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">每周一早上10点推送上周经营数据汇总</div>
+                <div class="task-schedule">
+                    <span>推送时间：</span>
+                    <select><option selected>周一 10:00</option><option>周日 18:00</option></select>
+                </div>
+                <div class="task-log">
+                    <div class="task-log-title">最近执行</div>
+                    <div class="task-log-item"><span class="task-log-time">周一 10:00</span>本周数据已汇总</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-item-header">
+                    <div class="task-name">🌙 沉睡客户唤醒</div>
+                    <div class="task-toggle" onclick="toggleTask(this)"></div>
+                </div>
+                <div class="task-desc">自动识别30天未到店客户，生成唤醒营销方案</div>
+                <div class="task-schedule">
+                    <span>检查周期：</span>
+                    <select><option>每周</option><option selected>每月</option></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 配置 ====================
+        const EMPLOYEES = {
+            operator: {
+                name: '运营管家',
+                icon: '🤖',
+                desc: '预约管理 · 数据分析 · 运营建议',
+                greeting: '您好老板！我是运营管家 🤖\n\n我可以帮您：\n• 查看今日/本周/本月预约情况\n• 分析经营数据和收入统计\n• 管理客户档案和回访计划\n• 提供运营改进建议\n\n请问今天想了解什么？'
+            },
+            researcher: {
+                name: '市场调研员',
+                icon: '🔍',
+                desc: '流行趋势 · 竞品分析 · 市场洞察',
+                greeting: '您好老板！我是市场调研员 🔍\n\n我可以帮您：\n• 分析当前流行发型和发色趋势\n• 监测竞品动态和行业报告\n• 调研客户偏好和市场机会\n• 生成数据化的市场洞察报告\n\n想了解哪方面的市场动态？'
+            },
+            marketer: {
+                name: '营销顾问',
+                icon: '📢',
+                desc: '活动策划 · 回访提醒 · 会员营销',
+                greeting: '您好老板！我是营销顾问 📢\n\n我可以帮您：\n• 制定节日营销活动和优惠方案\n• 设计老带新推荐奖励计划\n• 规划会员储值和积分体系\n• 生成客户回访和唤醒策略\n\n需要策划什么类型的活动？'
+            },
+            advisor: {
+                name: '客户顾问',
+                icon: '💇',
+                desc: '客户咨询 · 预约服务 · 问题解答',
+                greeting: '您好老板！我是客户顾问 💇\n\n我可以帮您：\n• 查看客户咨询记录和对话\n• 了解客户预约流程和服务\n• 生成服务话术和FAQ\n• 分析客户咨询热点问题\n\n想查看哪些客户数据？'
+            }
+        };
+
+        const QUICK_QUESTIONS = {
+            operator: [
+                '今天有哪些预约？',
+                '这周收入多少？',
+                '哪些客户要回访？',
+                '本月新客户有几个？',
+                '哪个理发师业绩最好？'
+            ],
+            researcher: [
+                '最近流行什么发型？',
+                '今年流行什么发色？',
+                '竞品最近在做什么活动？',
+                '下个月适合做什么活动？',
+                '生成一份市场报告'
+            ],
+            marketer: [
+                '五一节做什么活动好？',
+                '老带新方案怎么设计？',
+                '会员日活动建议',
+                '如何提高回购率？',
+                '生成一份营销方案'
+            ],
+            advisor: [
+                '查看今日客户咨询',
+                '服务价格表是什么？',
+                '理发师团队介绍',
+                '预约流程是什么？',
+                '有哪些优惠活动？'
+            ]
+        };
+
+        // ==================== 状态 ====================
+        let currentEmployee = 'operator';
+        let appointments = JSON.parse(localStorage.getItem('xingyi_appointments') || '[]');
+
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // 更新今日预约数
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('todayCount').textContent = 
+            appointments.filter(a => a.date === today).length;
+
+        // ==================== 切换数字员工 ====================
+        function selectEmployee(emp) {
+            currentEmployee = emp;
+            
+            // 更新UI
+            document.querySelectorAll('.employee-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const employee = EMPLOYEES[emp];
+            document.getElementById('chatTitle').textContent = employee.name;
+            document.getElementById('chatSubtitle').textContent = employee.desc;
+            
+            // 更新快捷问题
+            const quickActions = document.getElementById('quickActions');
+            quickActions.innerHTML = QUICK_QUESTIONS[emp].slice(0, 3).map(q => 
+                `<button class="quick-btn" onclick="askQuestion('${q}')">${q}</button>`
+            ).join('');
+            
+            // 添加欢迎消息
+            addMessage(employee.greeting, false, employee.icon);
+        }
+
+        // ==================== 发送消息 ====================
+        function askQuestion(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            addMessage(msg, true);
+            input.value = '';
+            
+            // 显示正在输入
+            showTyping();
+            
+            // 模拟AI思考
+            setTimeout(() => {
+                hideTyping();
+                const response = generateResponse(msg);
+                addMessage(response, false);
+            }, 1000 + Math.random() * 1000);
+        }
+
+        // ==================== 生成回复 ====================
+        function generateResponse(question) {
+            const q = question.toLowerCase();
+            const emp = currentEmployee;
+            
+            // 运营管家回复
+            if (emp === 'operator') {
+                if (q.includes('预约') || q.includes('今天')) {
+                    const todayAppts = appointments.filter(a => a.date === today);
+                    if (todayAppts.length === 0) {
+                        return `📅 **今日预约概览**\n\n今日暂无预约。\n\n💡 建议：可以检查一下是否有客户通过线上预约，或者主动联系老客户~`;
+                    }
+                    return `📅 **今日预约（${new Date().toLocaleDateString('zh-CN')}）**\n\n` + todayAppts.map(a => 
+                        `• ${a.time} · ${a.name} · ${a.service} · ${a.stylist}`
+                    ).join('\n') + `\n\n共计 ${todayAppts.length} 位客户，预计收入 ¥${todayAppts.reduce((s, a) => s + 98, 0)}\n\n需要查看详情或做其他安排吗？`;
+                }
+                if (q.includes('收入') || q.includes('本周') || q.includes('本月')) {
+                    return `📊 **经营数据概览**\n\n| 周期 | 预约数 | 预估收入 |\n|------|--------|----------|\n| 今日 | ${appointments.filter(a => a.date === today).length} | ¥${appointments.filter(a => a.date === today).length * 98} |\n| 本周 | ${appointments.length} | ¥${appointments.length * 98} |\n| 本月 | ${appointments.length} | ¥${appointments.length * 98} |\n\n💡 数据仅为参考，实际收入以到店确认为准。\n\n需要更详细的分析报告吗？`;
+                }
+                if (q.includes('回访') || q.includes('客户')) {
+                    return `📋 **待回访客户**\n\n根据您最近的预约记录，以下客户可能需要回访：\n\n• **张三** - 4月10日烫发 - 已过7天\n• **李四** - 4月12日染发 - 已过3天\n\n💡 回访建议：询问发质状态，推荐护理项目。\n\n需要我帮您生成回访话术吗？`;
+                }
+                return `🤖 **运营管家**\n\n好的，我来帮您分析。\n\n请告诉我您想了解的具体问题，比如：\n• "今天有哪些预约"\n• "本周收入多少"\n• "哪些客户要回访"\n• "本月新客户统计"\n• "哪个理发师业绩最好"\n\n或者直接描述您想做的事，我来帮您处理~`;
+            }
+            
+            // 市场调研员回复
+            if (emp === 'researcher') {
+                if (q.includes('发型') || q.includes('流行')) {
+                    return `🔍 **流行发型趋势报告**\n\n根据近期市场调研，以下发型最受欢迎：\n\n| 排名 | 发型 | 热度 | 适合人群 |\n|------|------|------|----------|\n| 🥇 | 层次感锁骨发 | 98% | 25-35岁职场女性 |\n| 🥈 | 慵懒法式卷 | 95% | 文艺气质女性 |\n| 🥉 | 韩式一刀切 | 90% | 时尚前卫女性 |\n| 4 | 复古羊毛卷 | 85% | 个性张扬女性 |\n| 5 | 美式前刺短发 | 80% | 男士热门 |\n\n💡 建议：林辰总监擅长法式卷，周宇擅长潮色和羊毛卷，可以重点推广。`;
+                }
+                if (q.includes('发色') || q.includes('染')) {
+                    return `🎨 **2026发色流行趋势**\n\n| 类型 | 推荐发色 | 适合肤色 | 维护难度 |\n|------|----------|----------|----------|\n| 爆款 | 蜂蜜茶棕 | 暖皮 | ⭐⭐ |\n| 高级感 | 灰棕色 | 冷皮 | ⭐⭐⭐ |\n| 显白 | 蓝黑色 | 通用 | ⭐⭐ |\n| 减龄 | 粉棕色 | 暖皮 | ⭐⭐⭐⭐ |\n| 欧美风 | 脏橘色 | 冷皮 | ⭐⭐⭐ |\n\n💡 推荐：蜂蜜茶棕适合大多数客户，易于维护。`;
+                }
+                if (q.includes('报告') || q.includes('市场')) {
+                    return `📊 **市场调研报告模板**\n\n# 星艺造型市场分析\n\n**调研日期**：${new Date().toLocaleDateString('zh-CN')}\n\n## 一、流行趋势\n- 层次感锁骨发持续火爆\n- 慵懒卷成为新晋爆款\n- 男士渐变剪需求上升\n\n## 二、竞品动态\n- 周边3家竞品在推会员折扣\n- 建议保持服务质量差异化\n\n## 三、客户画像\n- 25-35岁女性为主力客群\n- 回头客占比约60%\n\n## 四、建议行动\n1. 重点推广法式卷项目\n2. 加强男士发型宣传\n3. 推出蜂蜜茶棕套餐\n\n需要我详细展开某个部分吗？`;
+                }
+                return `🔍 **市场调研员**\n\n好的，我来为您调研！\n\n可以问我：\n• "最近流行什么发型"\n• "今年流行什么发色"\n• "竞品最近在做什么"\n• "下个月适合做什么活动"\n• "生成一份完整的市场报告"\n\n或者告诉我您想了解的具体方向~`;
+            }
+            
+            // 营销顾问回复
+            if (emp === 'marketer') {
+                if (q.includes('五一') || q.includes('节日') || q.includes('活动')) {
+                    return `🎉 **五一营销活动方案**\n\n## 方案一：青春焕彩节\n**时间**：5月1日-5月5日\n\n| 项目 | 优惠 | 目标人群 |\n|------|------|----------|\n| 洗剪吹 | 原价8折 | 新客引流 |\n| 烫/染 | 立减100元 | 主力消费 |\n| 烫+染套餐 | 8.5折 | 高客单价 |\n\n## 方案二：老客回馈\n• 会员充值翻倍（充500送100）\n• 老带新双方各得护理券\n\n## 线上推广\n• 抖音/小红书发布种草笔记\n• 到店核销享额外9折\n\n💰 **预估效果**：活动期间营收提升40-60%\n\n需要我细化某个方案吗？`;
+                }
+                if (q.includes('老带新') || q.includes('推荐')) {
+                    return `👥 **老带新推荐方案**\n\n## 推荐机制\n| 推荐人数 | 老客奖励 | 新客优惠 |\n|----------|----------|----------|\n| 1人 | 基础护理1次 | 洗剪吹5折 |\n| 3人 | 烫发抵扣200元 | 烫染立减100元 |\n| 5人 | 总监洗剪吹免费 | 全单7折 |\n\n## 宣传话术\n"老带新活动：推荐好友双方都有礼！"\n\n💡 建议：配合节日营销效果更佳~`;
+                }
+                return `📢 **营销顾问**\n\n好的，我来帮您策划！\n\n可以问我：\n• "五一节做什么活动好"\n• "老带新方案怎么设计"\n• "会员日活动建议"\n• "如何提高回购率"\n• "生成一份营销方案"\n\n或者告诉我您想达成的营销目标~`;
+            }
+            
+            // 客户顾问回复
+            if (emp === 'advisor') {
+                if (q.includes('价格') || q.includes('价目')) {
+                    return `💇 **服务项目价格表**\n\n| 服务 | 基础款 | 资深款 | 总监款 |\n|------|--------|--------|--------|\n| 洗剪吹 | ¥58 | ¥98 | ¥168 |\n| 染发(短发) | ¥198 | ¥298 | ¥498 |\n| 染发(中长发) | ¥268 | ¥398 | ¥598 |\n| 烫发(短发) | ¥298 | ¥428 | ¥698 |\n| 烫发(中长发) | ¥368 | ¥528 | ¥798 |\n\n**会员优惠**：储值1000享8.5折，2000享7.8折，5000享6.8折`;
+                }
+                if (q.includes('理发师') || q.includes('团队')) {
+                    return `👥 **理发师团队**\n\n| 理发师 | 职级 | 经验 | 擅长领域 |\n|--------|------|------|----------|\n| 林辰 | 技术总监 | 12年 | 高级定制烫染、法式卷 |\n| 苏晚 | 资深理发师 | 8年 | 生活化烫染、锁骨发 |\n| 陈默 | 资深理发师 | 7年 | 男士油头、摩根烫 |\n| 夏禾 | 理发师 | 4年 | 基础剪发、儿童剪发 |\n| 周宇 | 理发师 | 5年 | 潮色染发、羊毛卷 |\n\n客户可以扫码后告诉AI想要的服务和风格，AI会自动推荐合适的理发师~`;
+                }
+                return `💇 **客户顾问**\n\n好的，我可以帮您了解客户侧的服务信息。\n\n可以问我：\n• "服务价格表是什么"\n• "理发师团队介绍"\n• "预约流程是什么"\n• "有哪些优惠活动"\n• "查看今日客户咨询"\n\n需要查看客户的实际咨询记录吗？`;
+            }
+            
+            return '抱歉，我不太理解您的问题，请换个方式描述~';
+        }
+
+        // ==================== UI操作 ====================
+        function addMessage(content, isUser = false, icon = '🤖') {
+            const container = document.getElementById('messages');
+            
+            // 清除欢迎卡片
+            const welcome = container.querySelector('.welcome-card');
+            if (welcome) welcome.remove();
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            msgDiv.innerHTML = `
+                <div class="message-avatar">${isUser ? '👤' : icon}</div>
+                <div class="message-content">${content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\|/g, '<br>')}</div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">${EMPLOYEES[currentEmployee].icon}</div>
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function toggleTasksPanel() {
+            document.getElementById('tasksPanel').classList.toggle('open');
+        }
+
+        function toggleTask(btn) {
+            btn.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
