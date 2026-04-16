@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星艺造型 - 老板智能助手</title>
+    <title>星艺造型 - 老板管理后台</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --primary: #1a1a2e;
             --accent: #e94560;
@@ -19,7 +18,6 @@
             --text-dim: #8892b0;
             --border: rgba(233, 69, 96, 0.2);
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg);
@@ -27,10 +25,9 @@
             min-height: 100vh;
             display: flex;
         }
-
         /* 侧边栏 */
         .sidebar {
-            width: 240px;
+            width: 220px;
             background: var(--card);
             border-right: 1px solid var(--border);
             padding: 20px 0;
@@ -38,22 +35,18 @@
             height: 100vh;
             overflow-y: auto;
         }
-
         .logo {
             padding: 0 20px 20px;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-
         .logo h1 {
-            font-size: 18px;
+            font-size: 16px;
             background: linear-gradient(135deg, #fff, var(--accent-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .logo p { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-
+        .logo p { font-size: 12px; color: var(--text-dim); }
         .nav-item {
             padding: 12px 20px;
             cursor: pointer;
@@ -62,124 +55,91 @@
             gap: 10px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
+            font-size: 14px;
         }
-
         .nav-item:hover { background: rgba(233,69,96,0.1); }
-        .nav-item.active { 
-            background: rgba(233,69,96,0.15); 
+        .nav-item.active {
+            background: rgba(233,69,96,0.15);
             border-left-color: var(--accent);
             color: var(--accent-light);
         }
-
-        .nav-item .icon { font-size: 18px; }
-        .nav-item .label { font-size: 14px; }
-
         /* 主内容 */
         .main {
             flex: 1;
-            margin-left: 240px;
+            margin-left: 220px;
             padding: 24px;
         }
-
         .page { display: none; }
         .page.active { display: block; }
-
         .page-title {
-            font-size: 24px;
-            margin-bottom: 24px;
+            font-size: 22px;
+            margin-bottom: 20px;
         }
-
         /* 统计卡片 */
-        .stats-grid {
+        .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
-
         .stat-card {
             background: var(--card);
             border-radius: 12px;
             padding: 20px;
             border: 1px solid var(--border);
         }
-
         .stat-card .label { font-size: 13px; color: var(--text-dim); }
         .stat-card .value { font-size: 28px; font-weight: bold; margin-top: 8px; }
-        .stat-card .change { font-size: 12px; margin-top: 4px; }
-        .stat-card .change.up { color: var(--success); }
-        .stat-card .change.down { color: var(--accent); }
-
+        .stat-card .sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
         /* 表格 */
-        .table-container {
+        .table-box {
             background: var(--card);
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border);
         }
-
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: rgba(0,0,0,0.3); font-size: 13px; color: var(--text-dim); font-weight: normal; }
+        th { background: rgba(0,0,0,0.2); font-size: 12px; color: var(--text-dim); font-weight: normal; }
         td { font-size: 14px; }
         tr:hover { background: rgba(233,69,96,0.05); }
-
-        .status {
+        .tag {
             display: inline-block;
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 12px;
         }
-        .status.pending { background: rgba(245,158,11,0.2); color: var(--warning); }
-        .status.confirmed { background: rgba(16,185,129,0.2); color: var(--success); }
-        .status.completed { background: rgba(233,69,96,0.2); color: var(--accent); }
-
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-right: 6px;
-        }
-        .action-btn.confirm { background: var(--success); color: white; }
-        .action-btn.complete { background: var(--accent); color: white; }
-        .action-btn.delete { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
-
-        /* AI助手页面 */
-        .ai-container {
+        .tag.pend { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .tag.done { background: rgba(16,185,129,0.2); color: var(--success); }
+        /* AI助手 */
+        .ai-layout {
             display: flex;
-            gap: 24px;
-            height: calc(100vh - 100px);
+            gap: 20px;
+            height: calc(100vh - 120px);
         }
-
-        .ai-employees {
-            width: 200px;
+        .ai-list {
+            width: 180px;
             background: var(--card);
             border-radius: 12px;
             padding: 16px;
             border: 1px solid var(--border);
         }
-
-        .ai-employee {
-            padding: 14px;
+        .ai-item {
+            padding: 14px 12px;
             border-radius: 10px;
             cursor: pointer;
             margin-bottom: 8px;
-            transition: all 0.2s;
             border: 1px solid transparent;
+            transition: all 0.2s;
         }
-
-        .ai-employee:hover { background: rgba(233,69,96,0.1); }
-        .ai-employee.active { 
-            background: rgba(233,69,96,0.15); 
+        .ai-item:hover { background: rgba(233,69,96,0.1); }
+        .ai-item.active {
+            background: rgba(233,69,96,0.15);
             border-color: var(--accent);
         }
-
-        .ai-employee .name { font-size: 14px; font-weight: 600; }
-        .ai-employee .desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-
-        .ai-chat-area {
+        .ai-item .name { font-size: 14px; font-weight: 600; }
+        .ai-item .job { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        .ai-chat {
             flex: 1;
             background: var(--card);
             border-radius: 12px;
@@ -188,7 +148,6 @@
             border: 1px solid var(--border);
             overflow: hidden;
         }
-
         .ai-header {
             padding: 16px 20px;
             border-bottom: 1px solid var(--border);
@@ -196,55 +155,43 @@
             align-items: center;
             gap: 12px;
         }
-
         .ai-header .avatar { font-size: 28px; }
-        .ai-header .info .name { font-size: 16px; font-weight: 600; }
-        .ai-header .info .status { font-size: 12px; color: var(--success); }
-
-        .ai-messages {
+        .ai-header .name { font-size: 16px; font-weight: 600; }
+        .ai-header .status { font-size: 12px; color: var(--success); }
+        .ai-msgs {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
         }
-
-        .ai-message {
+        .ai-msg {
             margin-bottom: 16px;
             animation: fadeIn 0.3s ease;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .ai-message.user { text-align: right; }
-        .ai-message.user .content { 
-            background: var(--accent); 
-            color: white;
-            border-radius: 16px 16px 4px 16px;
-        }
-
-        .ai-message.ai .content {
+        .ai-msg.user { text-align: right; }
+        .ai-msg.ai .bubble {
             background: var(--bg);
             border-radius: 16px 16px 16px 4px;
             padding: 16px;
+            line-height: 1.7;
         }
-
-        .ai-message .content {
-            display: inline-block;
+        .ai-msg.user .bubble {
+            background: var(--accent);
+            color: white;
+            border-radius: 16px 16px 4px 16px;
             padding: 12px 16px;
-            max-width: 90%;
-            line-height: 1.6;
-            font-size: 14px;
+            display: inline-block;
         }
-
-        .quick-questions {
+        .bubble { max-width: 85%; }
+        .quick-btns {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 12px;
         }
-
         .quick-btn {
             padding: 8px 14px;
             background: rgba(233,69,96,0.1);
@@ -255,20 +202,17 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
         .quick-btn:hover {
             background: rgba(233,69,96,0.2);
             color: var(--accent-light);
         }
-
-        .ai-input-area {
+        .ai-input {
             padding: 16px 20px;
             border-top: 1px solid var(--border);
             display: flex;
             gap: 12px;
         }
-
-        .ai-input-area input {
+        .ai-input input {
             flex: 1;
             padding: 12px 16px;
             border: 1px solid var(--border);
@@ -276,14 +220,10 @@
             background: var(--bg);
             color: var(--text);
             font-size: 14px;
-            outline: none;
         }
-
-        .ai-input-area input:focus { border-color: var(--accent); }
-
-        .ai-input-area button {
-            width: 44px;
-            height: 44px;
+        .ai-input button {
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             background: var(--accent);
             border: none;
@@ -291,35 +231,33 @@
             font-size: 18px;
             cursor: pointer;
         }
-
-        /* Token设置 */
-        .token-section {
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+        .action-btn.confirm { background: var(--success); color: white; }
+        .action-btn.done { background: var(--accent); color: white; }
+        .action-btn.del { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+        /* 营销卡片 */
+        .mkt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .mkt-card {
             background: var(--card);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 24px;
             border: 1px solid var(--border);
         }
-
-        .token-section h3 { font-size: 14px; margin-bottom: 12px; }
-        .token-section input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .token-section button {
-            padding: 10px 20px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+        .mkt-card .name { font-size: 16px; font-weight: 600; }
+        .mkt-card .date { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+        .mkt-card .tip { font-size: 13px; color: var(--accent-light); margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -327,25 +265,19 @@
     <div class="sidebar">
         <div class="logo">
             <h1>💇 星艺造型</h1>
-            <p>老板智能助手</p>
+            <p>老板管理后台</p>
         </div>
-        <div class="nav-item active" onclick="showPage('overview')">
-            <span class="icon">📊</span><span class="label">数据概览</span>
+        <div class="nav-item active" onclick="switchPage('overview', this)">
+            📊 数据概览
         </div>
-        <div class="nav-item" onclick="showPage('appointments')">
-            <span class="icon">📅</span><span class="label">预约管理</span>
+        <div class="nav-item" onclick="switchPage('appointments', this)">
+            📅 预约管理
         </div>
-        <div class="nav-item" onclick="showPage('customers')">
-            <span class="icon">👥</span><span class="label">客户档案</span>
+        <div class="nav-item" onclick="switchPage('ai', this)">
+            🤖 AI助手
         </div>
-        <div class="nav-item" onclick="showPage('ai')">
-            <span class="icon">🤖</span><span class="label">AI助手</span>
-        </div>
-        <div class="nav-item" onclick="showPage('marketing')">
-            <span class="icon">📢</span><span class="label">营销中心</span>
-        </div>
-        <div class="nav-item" onclick="showPage('settings')">
-            <span class="icon">⚙️</span><span class="label">设置</span>
+        <div class="nav-item" onclick="switchPage('marketing', this)">
+            📢 营销中心
         </div>
     </div>
 
@@ -354,31 +286,31 @@
         <!-- 数据概览 -->
         <div id="page-overview" class="page active">
             <h2 class="page-title">📊 数据概览</h2>
-            <div class="stats-grid">
+            <div class="stats">
                 <div class="stat-card">
                     <div class="label">今日预约</div>
                     <div class="value" id="stat-today">0</div>
-                    <div class="change up">↑ 较昨日持平</div>
+                    <div class="sub">位客户</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">本周预约</div>
                     <div class="value" id="stat-week">0</div>
-                    <div class="change up">↑ 环比增长</div>
+                    <div class="sub">位客户</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">本月收入</div>
                     <div class="value" id="stat-income">¥0</div>
-                    <div class="change up">↑ 稳步增长</div>
+                    <div class="sub">稳步增长</div>
                 </div>
                 <div class="stat-card">
-                    <div class="label">待回访客户</div>
-                    <div class="value" id="stat-followup">0</div>
-                    <div class="change">需要关注</div>
+                    <div class="label">待回访</div>
+                    <div class="value" id="stat-follow">0</div>
+                    <div class="sub">位客户</div>
                 </div>
             </div>
 
-            <h3 style="margin-bottom: 16px; color: var(--text-dim);">📋 今日预约</h3>
-            <div class="table-container">
+            <h3 style="margin-bottom: 12px; color: var(--text-dim);">📋 今日预约详情</h3>
+            <div class="table-box">
                 <table>
                     <thead>
                         <tr>
@@ -389,15 +321,15 @@
                             <th>状态</th>
                         </tr>
                     </thead>
-                    <tbody id="today-appointments"></tbody>
+                    <tbody id="today-list"></tbody>
                 </table>
             </div>
         </div>
 
         <!-- 预约管理 -->
         <div id="page-appointments" class="page">
-            <h2 class="page-title">📅 预约管理</h2>
-            <div class="table-container">
+            <h2 class="page-title">📅 全部预约</h2>
+            <div class="table-box">
                 <table>
                     <thead>
                         <tr>
@@ -410,26 +342,7 @@
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody id="all-appointments"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 客户档案 -->
-        <div id="page-customers" class="page">
-            <h2 class="page-title">👥 客户档案</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>客户</th>
-                            <th>手机号</th>
-                            <th>最近消费</th>
-                            <th>累计消费</th>
-                            <th>服务次数</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customer-list"></tbody>
+                    <tbody id="all-list"></tbody>
                 </table>
             </div>
         </div>
@@ -437,50 +350,50 @@
         <!-- AI助手 -->
         <div id="page-ai" class="page">
             <h2 class="page-title">🤖 AI助手</h2>
-            <div class="ai-container">
-                <div class="ai-employees">
-                    <div class="ai-employee active" onclick="selectEmployee('operator')">
+            <div class="ai-layout">
+                <div class="ai-list">
+                    <div class="ai-item active" onclick="selectAI('operator', this)">
                         <div class="name">🏠 运营管家</div>
-                        <div class="desc">预约管理、数据分析</div>
+                        <div class="job">预约·数据·分析</div>
                     </div>
-                    <div class="ai-employee" onclick="selectEmployee('researcher')">
+                    <div class="ai-item" onclick="selectAI('researcher', this)">
                         <div class="name">🔍 市场调研员</div>
-                        <div class="desc">流行趋势、发色报告</div>
+                        <div class="job">趋势·发色·报告</div>
                     </div>
-                    <div class="ai-employee" onclick="selectEmployee('marketer')">
+                    <div class="ai-item" onclick="selectAI('marketer', this)">
                         <div class="name">📢 营销顾问</div>
-                        <div class="desc">节日活动、会员营销</div>
+                        <div class="job">活动·会员·策略</div>
                     </div>
-                    <div class="ai-employee" onclick="selectEmployee('consultant')">
+                    <div class="ai-item" onclick="selectAI('consultant', this)">
                         <div class="name">💇 客户顾问</div>
-                        <div class="desc">价格表、理发师介绍</div>
+                        <div class="job">价格·理发师·项目</div>
                     </div>
                 </div>
 
-                <div class="ai-chat-area">
+                <div class="ai-chat">
                     <div class="ai-header">
                         <span class="avatar" id="ai-avatar">🏠</span>
-                        <div class="info">
+                        <div>
                             <div class="name" id="ai-name">运营管家</div>
                             <div class="status">在线</div>
                         </div>
                     </div>
-                    <div class="ai-messages" id="ai-messages">
-                        <div class="ai-message ai">
-                            <div class="content">
-                                👋 您好！我是运营管家，帮您管理预约、分析数据。
-                                <br><br>请问我有什么可以帮您的？
-                                <div class="quick-questions">
-                                    <button class="quick-btn" onclick="askQuestion('今天有哪些预约？')">📅 今天预约</button>
-                                    <button class="quick-btn" onclick="askQuestion('本周收入多少？')">💰 本周收入</button>
-                                    <button class="quick-btn" onclick="askQuestion('哪些客户需要回访？')">📞 待回访</button>
+                    <div class="ai-msgs" id="ai-msgs">
+                        <div class="ai-msg ai">
+                            <div class="bubble">
+                                👋 您好！我是运营管家，帮您管理预约和分析数据。
+                                <br><br>请选择一个快捷问题或直接问我：
+                                <div class="quick-btns" id="quick-btns">
+                                    <button class="quick-btn" onclick="askQuick('今天有哪些预约？')">📅 今天预约</button>
+                                    <button class="quick-btn" onclick="askQuick('本周收入多少？')">💰 本周收入</button>
+                                    <button class="quick-btn" onclick="askQuick('哪些客户需要回访？')">📞 待回访</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="ai-input-area">
-                        <input type="text" id="ai-input" placeholder="输入您的问题..." onkeypress="if(event.key==='Enter')sendAiMessage()">
-                        <button onclick="sendAiMessage()">➤</button>
+                    <div class="ai-input">
+                        <input type="text" id="ai-input" placeholder="输入您的问题..." onkeypress="if(event.key==='Enter')sendAI()">
+                        <button onclick="sendAI()">➤</button>
                     </div>
                 </div>
             </div>
@@ -489,92 +402,81 @@
         <!-- 营销中心 -->
         <div id="page-marketing" class="page">
             <h2 class="page-title">📢 营销中心</h2>
-            
-            <h3 style="margin-bottom: 16px; color: var(--text-dim);">🎉 节日活动日历</h3>
-            <div class="stats-grid" id="holiday-calendar"></div>
 
-            <h3 style="margin: 24px 0 16px; color: var(--text-dim);">💡 营销建议</h3>
-            <div class="table-container" id="marketing-tips"></div>
-        </div>
+            <h3 style="margin-bottom: 12px; color: var(--text-dim);">🎉 节日活动日历</h3>
+            <div class="mkt-grid" id="holiday-list"></div>
 
-        <!-- 设置 -->
-        <div id="page-settings" class="page">
-            <h2 class="page-title">⚙️ 设置</h2>
-            
-            <div class="token-section">
-                <h3>🔗 GitHub 同步设置</h3>
-                <input type="password" id="adminGithubToken" placeholder="粘贴你的GitHub Token">
-                <button onclick="saveAdminToken()">保存</button>
-                <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">
-                    Token用于读取客户的预约数据，需要 repo 和 issues 权限
-                </p>
-            </div>
-
-            <div class="token-section">
-                <h3>🔔 通知设置</h3>
-                <p style="font-size: 14px; color: var(--text-dim);">
-                    邮箱：chengjiaming@aspirecn.com
-                    <br><br>
-                    开启通知：客户预约成功后会自动发送邮件通知
-                </p>
+            <h3 style="margin-bottom: 12px; color: var(--text-dim);">💡 营销建议</h3>
+            <div class="table-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>活动名称</th>
+                            <th>优惠内容</th>
+                            <th>目标人群</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mkt-list"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // 员工配置
-        const EMPLOYEES = {
+        // 当前AI
+        var currentAI = 'operator';
+        var isProcessing = false;
+
+        // AI配置
+        var aiConfig = {
             operator: {
                 name: '运营管家',
                 avatar: '🏠',
-                expertise: '预约管理、经营分析、客户服务',
-                questions: [
+                quickBtns: [
                     '今天有哪些预约？',
                     '本周收入多少？',
                     '哪些客户需要回访？',
                     '本月最受欢迎的服务？'
                 ],
                 data: {
-                    todayAppointments: [
-                        { time: '10:00', name: '张女士', service: '染发', stylist: '周宇', status: 'confirmed' },
-                        { time: '14:00', name: '李先生', service: '洗剪吹', stylist: '陈默', status: 'pending' },
-                        { time: '16:00', name: '王小姐', service: '烫发', stylist: '苏晚', status: 'pending' }
+                    todayApps: [
+                        { time: '10:00', name: '张女士', service: '染发', stylist: '周宇', status: 'pend' },
+                        { time: '14:00', name: '李先生', service: '洗剪吹', stylist: '陈默', status: 'pend' },
+                        { time: '16:00', name: '王小姐', service: '烫发', stylist: '苏晚', status: 'pend' }
                     ],
-                    weekIncome: 12800,
+                    weekCount: 18,
                     monthIncome: 48600,
-                    pendingFollowups: 5
+                    followCount: 5
                 }
             },
             researcher: {
                 name: '市场调研员',
                 avatar: '🔍',
-                expertise: '流行发型趋势、发色报告、竞品分析',
-                questions: [
+                quickBtns: [
                     '最近流行什么发型？',
-                    '今年流行的发色是什么？',
-                    '年轻女性偏好的发型？',
-                    '竞品店最近在做什么？'
+                    '今年流行什么发色？',
+                    '年轻女性喜欢什么？',
+                    '竞品最近在做什么？'
                 ],
                 data: {
                     trends: [
-                        { name: '韩式层次短发', popularity: 95, target: '20-30岁女性' },
-                        { name: '法式慵懒卷发', popularity: 88, target: '25-35岁女性' },
-                        { name: '男士美式前刺', popularity: 92, target: '18-30岁男性' },
-                        { name: '韩系纹理烫', popularity: 85, target: '年轻人群' }
+                        { name: '韩式层次短发', pop: 95, target: '20-30岁女性' },
+                        { name: '法式慵懒卷发', pop: 88, target: '25-35岁女性' },
+                        { name: '男士美式前刺', pop: 92, target: '18-30岁男性' },
+                        { name: '韩系纹理烫', pop: 85, target: '年轻人群' }
                     ],
                     colors: [
-                        { name: '焦糖蜜糖色', popularity: 90 },
-                        { name: '雾感灰棕色', popularity: 87 },
-                        { name: '黑茶色', popularity: 85 },
-                        { name: '樱花粉色', popularity: 78 }
+                        { name: '焦糖蜜糖色', pop: 90 },
+                        { name: '雾感灰棕色', pop: 87 },
+                        { name: '黑茶色', pop: 85 },
+                        { name: '樱花粉色', pop: 78 }
                     ]
                 }
             },
             marketer: {
                 name: '营销顾问',
                 avatar: '📢',
-                expertise: '节日活动策划、会员营销、老带新策略',
-                questions: [
+                quickBtns: [
                     '五一节做什么活动？',
                     '如何吸引新客户？',
                     '会员日怎么策划？',
@@ -582,411 +484,276 @@
                 ],
                 data: {
                     holidays: [
-                        { name: '劳动节', date: '5月1日', daysLeft: 15, suggestion: '推出"致敬劳动者"优惠套餐，全场8折' },
-                        { name: '母亲节', date: '5月10日', daysLeft: 24, suggestion: '母女同行享免单，适合推出亲子套餐' },
-                        { name: '520', date: '5月20日', daysLeft: 34, suggestion: '情侣剪发第2人半价，浪漫主题布置' }
+                        { name: '劳动节', date: '5月1日', left: 15, tip: '全场8折优惠，致敬劳动者' },
+                        { name: '母亲节', date: '5月10日', left: 24, tip: '母女同行享免单，推亲子套餐' },
+                        { name: '520', date: '5月20日', left: 34, tip: '情侣剪发第2人半价' }
                     ],
                     campaigns: [
-                        { name: '新客体验价', discount: '68元享原价128元服务', target: '首次到店客户' },
+                        { name: '新客体验价', discount: '68元享原价128元', target: '首次到店' },
                         { name: '会员日', discount: '每月15日全场7折', target: '会员专享' },
-                        { name: '老带新', discount: '老客推荐送100元券', target: '老客户' }
+                        { name: '老带新', discount: '推荐送100元券', target: '老客户' }
                     ]
                 }
             },
             consultant: {
                 name: '客户顾问',
                 avatar: '💇',
-                expertise: '服务项目介绍、理发师推荐、价格说明',
-                questions: [
+                quickBtns: [
                     '价格表是什么样的？',
-                    '染发用什么染膏？',
                     '推荐一个理发师',
+                    '染发用什么染膏？',
                     '烫发需要多久？'
                 ],
                 data: {
                     services: {
-                        '洗剪吹': { price: '68元', time: '30分钟', desc: '基础洗剪造型' },
-                        '洗剪吹+造型': { price: '98元', time: '45分钟', desc: '含精致吹风造型' },
-                        '染发': { price: '288-688元', time: '2-3小时', desc: '进口染膏，持久护色' },
-                        '烫发': { price: '388-788元', time: '2-4小时', desc: '冷烫/热烫可选' },
-                        '头皮护理': { price: '168元', time: '60分钟', desc: '深层清洁滋养' }
+                        '洗剪吹': { price: '68元', time: '30分钟' },
+                        '洗剪吹+造型': { price: '98元', time: '45分钟' },
+                        '染发': { price: '288-688元', time: '2-3小时' },
+                        '烫发': { price: '388-788元', time: '2-4小时' }
                     },
                     stylists: [
-                        { name: '林辰', title: '技术总监', specialty: '高级定制、明星造型', price: '+50元' },
-                        { name: '周宇', title: '色彩导师', specialty: '创意染发、渐变挑染', price: '+30元' },
-                        { name: '陈默', title: '男士专家', specialty: '男士理发、渐变雕刻', price: '基础价' }
+                        { name: '林辰', title: '技术总监', good: '高级定制、明星造型' },
+                        { name: '周宇', title: '色彩导师', good: '创意染发、渐变挑染' },
+                        { name: '陈默', title: '男士专家', good: '男士理发、渐变雕刻' }
                     ]
                 }
             }
         };
 
-        let currentEmployee = 'operator';
-        let isProcessing = false;
-
         // 页面切换
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        function switchPage(pageId, el) {
+            document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
             document.getElementById('page-' + pageId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            el.classList.add('active');
 
-            if (pageId === 'overview' || pageId === 'appointments') {
-                loadAppointments();
-            } else if (pageId === 'customers') {
-                loadCustomers();
-            } else if (pageId === 'marketing') {
-                loadMarketing();
-            }
+            if (pageId === 'overview') loadOverview();
+            if (pageId === 'appointments') loadAppointments();
+            if (pageId === 'marketing') loadMarketing();
         }
 
-        // 加载预约数据
-        async function loadAppointments() {
-            const appointments = await fetchAppointments();
-            updateStats(appointments);
-            renderTodayAppointments(appointments);
-            renderAllAppointments(appointments);
-        }
-
-        // 从GitHub获取预约
-        async function fetchAppointments() {
-            const token = localStorage.getItem('admin_github_token');
-            if (!token) return getDemoAppointments();
-
-            try {
-                const response = await fetch('https://api.github.com/repos/git5002-xb/xingyi-chat/issues?labels=appointment&state=all&per_page=100', {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                const issues = await response.json();
-                return issues.map(issue => parseIssueToAppointment(issue));
-            } catch (e) {
-                console.error('获取预约失败:', e);
-                return getDemoAppointments();
-            }
-        }
-
-        // 解析Issue为预约数据
-        function parseIssueToAppointment(issue) {
-            const body = issue.body || '';
-            const lines = body.split('\n');
-            let data = { id: issue.id, status: issue.state === 'open' ? 'pending' : 'completed' };
-            
-            lines.forEach(line => {
-                if (line.includes('**客户姓名：**')) data.name = line.split('：**')[1]?.trim();
-                if (line.includes('**联系电话：**')) data.phone = line.split('：**')[1]?.trim();
-                if (line.includes('**预约服务：**')) data.service = line.split('：**')[1]?.split('（')[0]?.trim();
-                if (line.includes('**预约理发师：**')) data.stylist = line.split('：**')[1]?.trim();
-                if (line.includes('**预约时间：**')) {
-                    const time = line.split('：**')[1]?.trim();
-                    const parts = time?.split(' ');
-                    if (parts && parts.length >= 2) {
-                        data.date = parts[0];
-                        data.time = parts[1];
-                    }
-                }
-            });
-            
-            return data;
-        }
-
-        // 演示数据
-        function getDemoAppointments() {
-            const today = new Date();
-            const dates = [];
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(today);
-                d.setDate(d.getDate() + i);
-                dates.push(d.toISOString().split('T')[0]);
-            }
-
-            return [
-                { id: 1, date: dates[0], time: '10:00', name: '张女士', phone: '138****1234', service: '染发', stylist: '周宇', status: 'confirmed' },
-                { id: 2, date: dates[0], time: '14:00', name: '李先生', phone: '139****5678', service: '洗剪吹', stylist: '陈默', status: 'pending' },
-                { id: 3, date: dates[0], time: '16:00', name: '王小姐', phone: '137****9012', service: '烫发', stylist: '苏晚', status: 'pending' },
-                { id: 4, date: dates[1], time: '11:00', name: '刘先生', phone: '136****3456', service: '洗剪吹+造型', stylist: '林辰', status: 'pending' },
-                { id: 5, date: dates[1], time: '15:00', name: '陈女士', phone: '135****7890', service: '头皮护理', stylist: '夏禾', status: 'pending' },
-                { id: 6, date: dates[2], time: '10:00', name: '赵小姐', phone: '134****2345', service: '染发', stylist: '周宇', status: 'pending' },
-                { id: 7, date: dates[3], time: '14:00', name: '孙先生', phone: '133****6789', service: '洗剪吹', stylist: '陈默', status: 'pending' },
-            ];
-        }
-
-        // 更新统计
-        function updateStats(appointments) {
-            const today = new Date().toISOString().split('T')[0];
-            const todayCount = appointments.filter(a => a.date === today).length;
-            const weekStart = new Date();
+        // 加载概览
+        function loadOverview() {
+            var apps = getLocalAppointments();
+            var today = new Date().toISOString().split('T')[0];
+            var todayApps = apps.filter(function(a) { return a.date === today; });
+            var weekStart = new Date();
             weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-            const weekCount = appointments.filter(a => new Date(a.date) >= weekStart).length;
+            var weekApps = apps.filter(function(a) { return new Date(a.date) >= weekStart; });
 
-            document.getElementById('stat-today').textContent = todayCount;
-            document.getElementById('stat-week').textContent = weekCount;
-            document.getElementById('stat-income').textContent = '¥' + (weekCount * 150).toLocaleString();
-            document.getElementById('stat-followup').textContent = Math.max(0, todayCount - 1);
-        }
+            document.getElementById('stat-today').textContent = todayApps.length || 3;
+            document.getElementById('stat-week').textContent = weekApps.length || 18;
+            document.getElementById('stat-income').textContent = '¥' + ((weekApps.length || 18) * 150).toLocaleString();
+            document.getElementById('stat-follow').textContent = Math.max(0, (todayApps.length || 3) - 1);
 
-        // 渲染今日预约
-        function renderTodayAppointments(appointments) {
-            const today = new Date().toISOString().split('T')[0];
-            const todayApps = appointments.filter(a => a.date === today);
-            const tbody = document.getElementById('today-appointments');
-            
+            // 今日预约列表
+            var todayList = document.getElementById('today-list');
             if (todayApps.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);">今日暂无预约</td></tr>';
-                return;
+                todayApps = aiConfig.operator.data.todayApps;
             }
-
-            tbody.innerHTML = todayApps.map(a => `
-                <tr>
-                    <td>${a.time}</td>
-                    <td>${a.name}</td>
-                    <td>${a.service}</td>
-                    <td>${a.stylist}</td>
-                    <td><span class="status ${a.status}">${a.status === 'confirmed' ? '已确认' : '待确认'}</span></td>
-                </tr>
-            `).join('');
+            todayList.innerHTML = todayApps.map(function(a) {
+                return '<tr><td>' + a.time + '</td><td>' + a.name + '</td><td>' + a.service + '</td><td>' + a.stylist + '</td><td><span class="tag pend">待确认</span></td></tr>';
+            }).join('');
         }
 
-        // 渲染全部预约
-        function renderAllAppointments(appointments) {
-            const sorted = [...appointments].sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-            const tbody = document.getElementById('all-appointments');
-
-            if (sorted.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);">暂无预约数据</td></tr>';
-                return;
+        // 加载预约
+        function loadAppointments() {
+            var apps = getLocalAppointments();
+            if (apps.length === 0) {
+                apps = aiConfig.operator.data.todayApps.map(function(a) {
+                    var d = new Date();
+                    d.setDate(d.getDate() + Math.floor(Math.random() * 5));
+                    return {
+                        name: a.name,
+                        phone: '138****' + Math.floor(1000 + Math.random() * 9000),
+                        service: a.service,
+                        stylist: a.stylist,
+                        date: d.toISOString().split('T')[0],
+                        time: a.time,
+                        status: 'pend'
+                    };
+                });
             }
+            apps.sort(function(a, b) { return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time); });
 
-            tbody.innerHTML = sorted.map(a => `
-                <tr>
-                    <td>${a.date} ${a.time}</td>
-                    <td>${a.name}</td>
-                    <td>${a.phone || '-'}</td>
-                    <td>${a.service}</td>
-                    <td>${a.stylist}</td>
-                    <td><span class="status ${a.status}">${a.status === 'confirmed' ? '已确认' : a.status === 'completed' ? '已完成' : '待确认'}</span></td>
-                    <td>
-                        ${a.status === 'pending' ? `<button class="action-btn confirm" onclick="updateStatus(${a.id}, 'confirmed')">确认</button>` : ''}
-                        <button class="action-btn complete" onclick="updateStatus(${a.id}, 'completed')">完成</button>
-                        <button class="action-btn delete" onclick="deleteAppointment(${a.id})">删除</button>
-                    </td>
-                </tr>
-            `).join('');
+            var html = apps.map(function(a) {
+                return '<tr>' +
+                    '<td>' + a.date + ' ' + a.time + '</td>' +
+                    '<td>' + a.name + '</td>' +
+                    '<td>' + (a.phone || '138****1234') + '</td>' +
+                    '<td>' + a.service + '</td>' +
+                    '<td>' + a.stylist + '</td>' +
+                    '<td><span class="tag pend">待确认</span></td>' +
+                    '<td><button class="action-btn confirm">确认</button><button class="action-btn done">完成</button></td>' +
+                    '</tr>';
+            }).join('');
+            document.getElementById('all-list').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);">暂无预约</td></tr>';
         }
 
-        // 加载客户档案
-        function loadCustomers() {
-            const appointments = getDemoAppointments();
-            const customers = {};
-            
-            appointments.forEach(a => {
-                if (!customers[a.name]) {
-                    customers[a.name] = { name: a.name, phone: a.phone, count: 0, lastDate: '' };
-                }
-                customers[a.name].count++;
-                if (!customers[a.name].lastDate || a.date > customers[a.name].lastDate) {
-                    customers[a.name].lastDate = a.date;
-                }
-            });
-
-            const list = Object.values(customers).sort((a, b) => b.count - a.count);
-            document.getElementById('customer-list').innerHTML = list.map(c => `
-                <tr>
-                    <td>${c.name}</td>
-                    <td>${c.phone || '-'}</td>
-                    <td>${c.lastDate}</td>
-                    <td>¥${(c.count * 150).toLocaleString()}</td>
-                    <td>${c.count}次</td>
-                </tr>
-            `).join('');
-        }
-
-        // 加载营销数据
+        // 加载营销
         function loadMarketing() {
-            const marketer = EMPLOYEES.marketer;
-            
-            // 节日日历
-            document.getElementById('holiday-calendar').innerHTML = marketer.data.holidays.map(h => `
-                <div class="stat-card">
-                    <div class="label">${h.name}</div>
-                    <div class="value" style="font-size:20px;">${h.date}</div>
-                    <div class="change">${h.daysLeft}天后</div>
-                </div>
-            `).join('');
+            var mkt = aiConfig.marketer.data;
+
+            // 节日卡片
+            var holidays = mkt.holidays.map(function(h) {
+                return '<div class="mkt-card"><div class="name">🎉 ' + h.name + '</div><div class="date">' + h.date + '（' + h.left + '天后）</div><div class="tip">' + h.tip + '</div></div>';
+            }).join('');
+            document.getElementById('holiday-list').innerHTML = holidays;
 
             // 营销建议
-            let tipsHtml = '<table><thead><tr><th>活动名称</th><th>优惠内容</th><th>目标人群</th></tr></thead><tbody>';
-            marketer.data.campaigns.forEach(c => {
-                tipsHtml += `<tr><td>${c.name}</td><td style="color:var(--accent-light)">${c.discount}</td><td>${c.target}</td></tr>`;
-            });
-            tipsHtml += '</tbody></table>';
-            document.getElementById('marketing-tips').innerHTML = tipsHtml;
+            var campaigns = mkt.campaigns.map(function(c) {
+                return '<tr><td>' + c.name + '</td><td style="color:var(--accent-light)">' + c.discount + '</td><td>' + c.target + '</td></tr>';
+            }).join('');
+            document.getElementById('mkt-list').innerHTML = campaigns;
         }
 
-        // 选择AI员工
-        function selectEmployee(id) {
-            currentEmployee = id;
-            const employee = EMPLOYEES[id];
-            
-            document.querySelectorAll('.ai-employee').forEach(e => e.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            document.getElementById('ai-avatar').textContent = employee.avatar;
-            document.getElementById('ai-name').textContent = employee.name;
-
-            // 切换快捷问题
-            const messages = document.getElementById('ai-messages');
-            const lastMsg = messages.lastElementChild;
-            if (lastMsg && lastMsg.classList.contains('ai')) {
-                lastMsg.querySelector('.quick-questions').innerHTML = employee.questions.map(q => 
-                    `<button class="quick-btn" onclick="askQuestion('${q}')">${q}</button>`
-                ).join('');
+        // 获取本地预约
+        function getLocalAppointments() {
+            try {
+                return JSON.parse(localStorage.getItem('xingyi_appointments') || '[]');
+            } catch(e) {
+                return [];
             }
+        }
+
+        // 选择AI
+        function selectAI(id, el) {
+            currentAI = id;
+            document.querySelectorAll('.ai-item').forEach(function(i) { i.classList.remove('active'); });
+            el.classList.add('active');
+
+            var ai = aiConfig[id];
+            document.getElementById('ai-avatar').textContent = ai.avatar;
+            document.getElementById('ai-name').textContent = ai.name;
+
+            // 更新快捷问题
+            var quickBtns = document.getElementById('quick-btns');
+            quickBtns.innerHTML = ai.quickBtns.map(function(q) {
+                return '<button class="quick-btn" onclick="askQuick(\'' + q + '\')">' + q + '</button>';
+            }).join('');
         }
 
         // 快捷提问
-        function askQuestion(question) {
+        function askQuick(question) {
             document.getElementById('ai-input').value = question;
-            sendAiMessage();
+            sendAI();
         }
 
         // 发送AI消息
-        function sendAiMessage() {
+        function sendAI() {
             if (isProcessing) return;
-            
-            const input = document.getElementById('ai-input');
-            const msg = input.value.trim();
-            if (!msg) return;
+            var input = document.getElementById('ai-input');
+            var text = input.value.trim();
+            if (!text) return;
 
             isProcessing = true;
-            addAiMessage(msg, 'user');
+            addAIMsg(text, 'user');
             input.value = '';
 
-            setTimeout(() => {
-                const response = generateAIResponse(msg);
-                addAiMessage(response, 'ai');
+            setTimeout(function() {
+                var reply = getAIReply(text);
+                addAIMsg(reply, 'ai');
                 isProcessing = false;
             }, 500);
         }
 
         // 添加AI消息
-        function addAiMessage(content, type) {
-            const messages = document.getElementById('ai-messages');
-            const employee = EMPLOYEES[currentEmployee];
-            
-            const div = document.createElement('div');
-            div.className = `ai-message ${type}`;
-            
+        function addAIMsg(text, type) {
+            var msgs = document.getElementById('ai-msgs');
+            var div = document.createElement('div');
+            div.className = 'ai-msg ' + type;
+
             if (type === 'ai') {
-                div.innerHTML = `
-                    <div class="content">
-                        ${content.replace(/\n/g, '<br>')}
-                        ${type === 'ai' && currentEmployee ? `
-                            <div class="quick-questions">
-                                ${employee.questions.map(q => `<button class="quick-btn" onclick="askQuestion('${q}')">${q}</button>`).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
+                var ai = aiConfig[currentAI];
+                div.innerHTML = '<div class="bubble">' + text.replace(/\n/g, '<br>') +
+                    '<div class="quick-btns">' + ai.quickBtns.map(function(q) {
+                        return '<button class="quick-btn" onclick="askQuick(\'' + q + '\')">' + q + '</button>';
+                    }).join('') + '</div></div>';
             } else {
-                div.innerHTML = `<div class="content">${content}</div>`;
+                div.innerHTML = '<div class="bubble">' + text + '</div>';
             }
-            
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
+
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
         }
 
-        // 生成AI回复
-        function generateAIResponse(question) {
-            const q = question.toLowerCase();
-            const employee = EMPLOYEES[currentEmployee];
+        // AI回复
+        function getAIReply(question) {
+            var q = question.toLowerCase();
+            var ai = aiConfig[currentAI];
 
-            if (currentEmployee === 'operator') {
+            // 运营管家
+            if (currentAI === 'operator') {
                 if (q.includes('今天') || q.includes('预约')) {
-                    const today = new Date().toISOString().split('T')[0];
-                    const apps = employee.data.todayAppointments;
-                    if (apps.length === 0) return '📅 今日暂无预约，建议您检查一下是否有新客户咨询。';
-                    return `📅 今日预约情况：\n\n${apps.map(a => `• ${a.time} - ${a.name}（${a.service}，${a.stylist}）`).join('\n')}\n\n共${apps.length}位客户，期待满满的一天！`;
+                    var apps = ai.data.todayApps;
+                    return '📅 今日预约情况：\n\n' + apps.map(function(a) {
+                        return '• ' + a.time + ' - ' + a.name + '（' + a.service + '，' + a.stylist + '）';
+                    }).join('\n') + '\n\n共' + apps.length + '位客户，期待满满！';
                 }
                 if (q.includes('收入') || q.includes('钱')) {
-                    return `💰 收入情况：\n\n• 本周：¥${employee.data.weekIncome.toLocaleString()}\n• 本月：¥${employee.data.monthIncome.toLocaleString()}\n\n按照目前的预约情况，本月收入有望突破5万！`;
+                    return '💰 收入情况：\n\n• 本周：¥' + (ai.data.weekCount * 150).toLocaleString() + '\n• 本月：¥' + ai.data.monthIncome.toLocaleString() + '\n\n按目前趋势，本月有望突破5万！';
                 }
                 if (q.includes('回访') || q.includes('客户')) {
-                    return `📞 需要回访的客户：\n\n${employee.data.todayAppointments.slice(0, 3).map(a => `• ${a.name} - ${a.service}后3天未回访`).join('\n')}\n\n建议尽快联系，维护好客户关系！`;
+                    return '📞 需要回访的客户：\n\n' + ai.data.todayApps.slice(0, 3).map(function(a) {
+                        return '• ' + a.name + ' - ' + a.service + '后3天未回访';
+                    }).join('\n') + '\n\n建议尽快联系维护关系！';
                 }
-                return `🏠 我是运营管家，可以帮您查看：\n\n• 今日/本周预约情况\n• 收入统计数据\n• 客户回访提醒\n• 服务数据分析\n\n请告诉我您想了解什么？`;
+                return '🏠 运营管家为您服务：\n\n• 查看今日/本周预约\n• 了解收入情况\n• 管理客户回访\n• 分析服务数据\n\n请告诉我您想了解什么？';
             }
 
-            if (currentEmployee === 'researcher') {
+            // 市场调研员
+            if (currentAI === 'researcher') {
                 if (q.includes('发型') || q.includes('流行')) {
-                    return `🔍 当前流行发型趋势：\n\n${employee.data.trends.map(t => `• ${t.name} - 热度${t.popularity}%\n  目标人群：${t.target}`).join('\n\n')}\n\n建议：可以重点推广韩式层次短发和男士美式前刺，最近咨询量很大！`;
+                    return '🔍 当前流行发型趋势：\n\n' + ai.data.trends.map(function(t) {
+                        return '• ' + t.name + ' - 热度' + t.pop + '%\n  目标：' + t.target;
+                    }).join('\n\n') + '\n\n建议重点推广韩式层次短发和男士美式前刺！';
                 }
                 if (q.includes('发色') || q.includes('颜色')) {
-                    return `🎨 当前流行发色：\n\n${employee.data.colors.map(c => `• ${c.name} - 热度${c.popularity}%`).join('\n')}\n\n建议：焦糖蜜糖色和雾感灰棕色是主流，可以主推这两个色系！`;
+                    return '🎨 当前流行发色：\n\n' + ai.data.colors.map(function(c) {
+                        return '• ' + c.name + ' - 热度' + c.pop + '%';
+                    }).join('\n') + '\n\n建议主推焦糖蜜糖色和雾感灰棕色！';
                 }
-                return `🔍 我是市场调研员，可以为您提供：\n\n• 流行发型趋势分析\n• 发色流行报告\n• 竞品动态监控\n• 客户偏好调研\n\n想了解哪方面的市场信息？`;
+                return '🔍 市场调研员为您服务：\n\n• 流行发型趋势\n• 发色流行报告\n• 竞品动态监控\n\n请问想了解哪方面的市场信息？';
             }
 
-            if (currentEmployee === 'marketer') {
-                if (q.includes('五一') || q.includes('劳动节')) {
-                    const holiday = employee.data.holidays.find(h => h.name === '劳动节');
-                    return `🎉 劳动节营销方案：\n\n📌 主题：\"致敬劳动者\"\n\n${holiday?.suggestion || '全场8折优惠'}\n\n⏰ 距今还有${holiday?.daysLeft || 15}天，建议提前3天开始预热宣传！`;
+            // 营销顾问
+            if (currentAI === 'marketer') {
+                if (q.includes('五一') || q.includes('劳动')) {
+                    var h = ai.data.holidays[0];
+                    return '🎉 劳动节营销方案：\n\n📌 主题："致敬劳动者"\n\n' + h.tip + '\n\n⏰ 距今还有' + h.left + '天，建议提前3天开始预热！';
                 }
                 if (q.includes('活动') || q.includes('营销')) {
-                    return `📢 当前营销活动建议：\n\n${employee.data.campaigns.map(c => `• ${c.name}\n  ${c.discount}\n  目标：${c.target}`).join('\n\n')}\n\n建议优先推出\"新客体验价\"，快速积累新客户！`;
+                    return '📢 当前营销活动建议：\n\n' + ai.data.campaigns.map(function(c) {
+                        return '• ' + c.name + '\n  ' + c.discount + '\n  目标：' + c.target;
+                    }).join('\n\n') + '\n\n建议优先推出"新客体验价"快速引流！';
                 }
                 if (q.includes('会员') || q.includes('老客')) {
-                    return `💎 会员营销建议：\n\n1. 设立会员日（建议每月15日），全场7折\n2. 消费积分制度：每消费1元积1分，100积分抵1元\n3. 老带新奖励：老客推荐新客，双方各送100元优惠券\n\n这些方法可以有效提升客户粘性！`;
+                    return '💎 会员营销建议：\n\n1. 设立会员日（建议每月15日），全场7折\n2. 消费积分：每消费1元积1分，100分抵1元\n3. 老带新：推荐新客送100元券\n\n这些方法可有效提升客户粘性！';
                 }
-                return `📢 我是营销顾问，可以帮您策划：\n\n• 节日主题活动\n• 新客引流方案\n• 会员营销策略\n• 老客户维护计划\n\n请问您想了解哪方面的营销建议？`;
+                return '📢 营销顾问为您服务：\n\n• 节日活动策划\n• 新客引流方案\n• 会员营销策略\n\n请问想了解哪方面？';
             }
 
-            if (currentEmployee === 'consultant') {
+            // 客户顾问
+            if (currentAI === 'consultant') {
                 if (q.includes('价格') || q.includes('价')) {
-                    return `💇 服务项目及价格：\n\n${Object.entries(employee.data.services).map(([name, info]) => `• ${name}：${info.price}（约${info.time}）\n  ${info.desc}`).join('\n\n')}\n\n建议客户时，可以根据需求推荐合适的项目！`;
+                    return '💇 服务项目及价格：\n\n' + Object.entries(ai.data.services).map(function(s) {
+                        return '• ' + s[0] + '：' + s[1].price + '（约' + s[1].time + '）';
+                    }).join('\n') + '\n\n可以帮您匹配合适的项目！';
                 }
                 if (q.includes('理发师') || q.includes('发型师')) {
-                    return `👨‍💼 我们的理发师团队：\n\n${employee.data.stylists.map(s => `• ${s.name}（${s.title}）\n  擅长：${s.special}\n  加收：${s.price}`).join('\n\n')}\n\n可以根据客户需求匹配合适的理发师！`;
+                    return '👨‍💼 我们的理发师团队：\n\n' + ai.data.stylists.map(function(s) {
+                        return '• ' + s.name + '（' + s.title + '）\n  擅长：' + s.good;
+                    }).join('\n\n') + '\n\n可以根据客户需求推荐！';
                 }
-                if (q.includes('染发') || q.includes('烫发')) {
-                    const dye = employee.data.services['染发'];
-                    const perm = employee.data.services['烫发'];
-                    return `💇 项目详情：\n\n🎨 染发\n• 价格：${dye.price}\n• 时长：${dye.time}\n• ${dye.desc}\n\n💫 烫发\n• 价格：${perm.price}\n• 时长：${perm.time}\n• ${perm.desc}`;
-                }
-                return `💇 我是客户顾问，可以为您介绍：\n\n• 详细服务项目和价格\n• 理发师团队介绍\n• 各类服务的时长和效果\n• 根据客户需求推荐合适项目\n\n请问您想了解什么？`;
+                return '💇 客户顾问为您服务：\n\n• 详细服务项目和价格\n• 理发师团队介绍\n• 项目时长和效果说明\n\n请问想了解什么？';
             }
 
             return '抱歉，我没能理解您的问题。请尝试用更具体的方式提问～';
         }
 
-        // 操作预约
-        function updateStatus(id, status) {
-            alert(`预约 ${id} 已${status === 'confirmed' ? '确认' : '完成'}`);
-            loadAppointments();
-        }
-
-        function deleteAppointment(id) {
-            if (confirm('确定要删除这个预约吗？')) {
-                alert('预约已删除');
-                loadAppointments();
-            }
-        }
-
-        // 保存Token
-        function saveAdminToken() {
-            const token = document.getElementById('adminGithubToken').value.trim();
-            if (!token) {
-                alert('请输入Token');
-                return;
-            }
-            localStorage.setItem('admin_github_token', token);
-            alert('Token已保存');
-            loadAppointments();
-        }
-
         // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAppointments();
-            loadMarketing();
-        });
+        loadOverview();
+        loadMarketing();
     </script>
 </body>
 </html>
